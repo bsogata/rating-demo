@@ -21,6 +21,7 @@ class StuffsCollection {
         allowedValues: ['excellent', 'good', 'fair', 'poor'],
         defaultValue: 'good',
       },
+      // B: adds rating field
       rating: Number,
     }, { tracker: Tracker });
     // Attach the schema to the collection, so all attempts to insert a document are checked against schema.

@@ -11,6 +11,7 @@ class StuffItem extends React.Component {
         <Table.Cell>{this.props.stuff.name}</Table.Cell>
         <Table.Cell>{this.props.stuff.quantity}</Table.Cell>
         <Table.Cell>{this.props.stuff.condition}</Table.Cell>
+        {/* B: adds a cell for the rating field; disabled to prevent editing on this page */}
         <Table.Cell>
           <Rating icon='star' defaultRating={this.props.stuff.rating} maxRating={5} disabled />
         </Table.Cell>
