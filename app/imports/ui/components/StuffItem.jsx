@@ -1,5 +1,5 @@
 import React from 'react';
-import { Table } from 'semantic-ui-react';
+import { Rating, Table } from 'semantic-ui-react';
 import PropTypes from 'prop-types';
 import { withRouter, Link } from 'react-router-dom';
 
@@ -11,6 +11,9 @@ class StuffItem extends React.Component {
         <Table.Cell>{this.props.stuff.name}</Table.Cell>
         <Table.Cell>{this.props.stuff.quantity}</Table.Cell>
         <Table.Cell>{this.props.stuff.condition}</Table.Cell>
+        <Table.Cell>
+          <Rating icon='star' defaultRating={this.props.stuff.rating} maxRating={5} disabled />
+        </Table.Cell>
         <Table.Cell>
           <Link to={`/edit/${this.props.stuff._id}`}>Edit</Link>
         </Table.Cell>
@@ -25,6 +28,7 @@ StuffItem.propTypes = {
     name: PropTypes.string,
     quantity: PropTypes.number,
     condition: PropTypes.string,
+    rating: PropTypes.number,
     _id: PropTypes.string,
   }).isRequired,
 };

@@ -1,9 +1,10 @@
 import React from 'react';
-import { Grid, Loader, Header, Segment } from 'semantic-ui-react';
+import { Grid, Loader, Header, Segment, Rating } from 'semantic-ui-react';
 import swal from 'sweetalert';
 import { AutoForm, ErrorsField, HiddenField, NumField, SelectField, SubmitField, TextField } from 'uniforms-semantic';
 import { Meteor } from 'meteor/meteor';
 import { withTracker } from 'meteor/react-meteor-data';
+import { _ } from 'meteor/underscore';
 import PropTypes from 'prop-types';
 import SimpleSchema2Bridge from 'uniforms-bridge-simple-schema-2';
 import { Stuffs } from '../../api/stuff/Stuff';
@@ -15,10 +16,14 @@ class EditStuff extends React.Component {
 
   // On successful submit, insert the data.
   submit(data) {
-    const { name, quantity, condition, _id } = data;
-    Stuffs.collection.update(_id, { $set: { name, quantity, condition } }, (error) => (error ?
+    const { name, quantity, condition, rating, _id } = data;
+    Stuffs.collection.update(_id, { $set: { name, quantity, condition, rating } }, (error) => (error ?
       swal('Error', error.message, 'error') :
       swal('Success', 'Item updated successfully', 'success')));
+  }
+
+  ratingChanged = (e, { rating }) => {
+    this.setState({ rating });
   }
 
   // If the subscription(s) have been received, render the page, otherwise show a loading icon.
@@ -32,11 +37,15 @@ class EditStuff extends React.Component {
       <Grid container centered>
         <Grid.Column>
           <Header as="h2" textAlign="center">Edit Stuff</Header>
-          <AutoForm schema={bridge} onSubmit={data => this.submit(data)} model={this.props.doc}>
+          <AutoForm schema={bridge} onSubmit={data => this.submit(_.extend(data, { rating: this.state.rating }))} model={this.props.doc}>
             <Segment>
               <TextField name='name'/>
               <NumField name='quantity' decimal={false}/>
               <SelectField name='condition'/>
+              <div className='required field'>
+                <label htmlFor='rating' >Rating</label>
+                <Rating id='rating' name='rating' defaultRating={this.props.doc.rating} maxRating={5} icon='star' onRate={this.ratingChanged} />
+              </div>
               <SubmitField value='Submit'/>
               <ErrorsField/>
               <HiddenField name='owner' />

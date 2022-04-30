@@ -1,8 +1,9 @@
 import React from 'react';
-import { Grid, Segment, Header } from 'semantic-ui-react';
-import { AutoForm, ErrorsField, NumField, SelectField, SubmitField, TextField } from 'uniforms-semantic';
+import { Grid, Segment, Header, Rating } from 'semantic-ui-react';
+import { AutoForm, ErrorsField, HiddenField, NumField, SelectField, SubmitField, TextField } from 'uniforms-semantic';
 import swal from 'sweetalert';
 import { Meteor } from 'meteor/meteor';
+import { _ } from 'meteor/underscore';
 import SimpleSchema2Bridge from 'uniforms-bridge-simple-schema-2';
 import SimpleSchema from 'simpl-schema';
 import { Stuffs } from '../../api/stuff/Stuff';
@@ -16,18 +17,23 @@ const formSchema = new SimpleSchema({
     allowedValues: ['excellent', 'good', 'fair', 'poor'],
     defaultValue: 'good',
   },
+  rating: Number,
 });
 
 const bridge = new SimpleSchema2Bridge(formSchema);
 
 /** Renders the Page for adding a document. */
 class AddStuff extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = { rating: 0 };
+  }
 
   // On submit, insert the data.
   submit(data, formRef) {
-    const { name, quantity, condition } = data;
+    const { name, quantity, condition, rating } = data;
     const owner = Meteor.user().username;
-    Stuffs.collection.insert({ name, quantity, condition, owner },
+    Stuffs.collection.insert({ name, quantity, condition, rating, owner },
       (error) => {
         if (error) {
           swal('Error', error.message, 'error');
@@ -38,6 +44,10 @@ class AddStuff extends React.Component {
       });
   }
 
+  ratingChanged = (e, { rating }) => {
+    this.setState({ rating });
+  }
+
   // Render the form. Use Uniforms: https://github.com/vazco/uniforms
   render() {
     let fRef = null;
@@ -45,11 +55,16 @@ class AddStuff extends React.Component {
       <Grid container centered>
         <Grid.Column>
           <Header as="h2" textAlign="center">Add Stuff</Header>
-          <AutoForm ref={ref => { fRef = ref; }} schema={bridge} onSubmit={data => this.submit(data, fRef)} >
+          <AutoForm ref={ref => { fRef = ref; }} schema={bridge} onSubmit={data => this.submit(_.extend(data, { rating: this.state.rating }), fRef)} >
             <Segment>
               <TextField name='name'/>
               <NumField name='quantity' decimal={false}/>
               <SelectField name='condition'/>
+              <div className='required field'>
+                <label htmlFor='rating'>Rating</label>
+                <Rating name='displayedRating' maxRating={5} icon='star' onRate={this.ratingChanged} />
+                <HiddenField id='rating' name='rating' value={this.state.rating} />
+              </div>
               <SubmitField value='Submit'/>
               <ErrorsField/>
             </Segment>
